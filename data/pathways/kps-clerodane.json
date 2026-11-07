@@ -1,0 +1,116 @@
+[
+  {
+    "data": {
+      "id": "SbarKPS1",
+      "label": "SbarKPS1",
+      "kind": "gene",
+      "annotation_id": "Sbar9A10T43",
+      "match": "best BLAST match, 94.8% identical (not identical)"
+    }
+  },
+  {
+    "data": {
+      "id": "SbarKPS2",
+      "label": "SbarKPS2",
+      "kind": "gene",
+      "annotation_id": "Sbar9A9T61",
+      "match": "identical protein, confirmed"
+    }
+  },
+  {
+    "data": {
+      "id": "SbaiKPS1",
+      "label": "SbaiKPS1",
+      "kind": "gene",
+      "annotation_id": "Sbai8C203T0",
+      "match": "best BLAST match, 84-89% identical (gene model is short)",
+      "note": "barely expressed in S. baicalensis (per the paper)"
+    }
+  },
+  {
+    "data": {
+      "id": "KPP",
+      "label": "(-)-kolavenyl diphosphate",
+      "kind": "compound"
+    }
+  },
+  {
+    "data": {
+      "id": "NCD",
+      "label": "neo-cleroda-4(18),13E-dienyl diphosphate",
+      "kind": "compound"
+    }
+  },
+  {
+    "data": {
+      "id": "CLERO",
+      "label": "clerodane diterpenoids (e.g. scutebarbatine A, B)",
+      "kind": "compound"
+    }
+  },
+  {
+    "data": {
+      "source": "SbarKPS1",
+      "target": "KPP",
+      "relation": "makes (monofunctional)",
+      "evidence_level": "moderate",
+      "reference": "PMID:37395679"
+    }
+  },
+  {
+    "data": {
+      "source": "SbarKPS2",
+      "target": "NCD",
+      "relation": "makes (main product)",
+      "evidence_level": "moderate",
+      "reference": "PMID:37395679"
+    }
+  },
+  {
+    "data": {
+      "source": "SbarKPS2",
+      "target": "KPP",
+      "relation": "makes (small amount)",
+      "evidence_level": "moderate",
+      "reference": "PMID:37395679"
+    }
+  },
+  {
+    "data": {
+      "source": "SbaiKPS1",
+      "target": "NCD",
+      "relation": "makes (main product)",
+      "evidence_level": "moderate",
+      "reference": "PMID:37395679"
+    }
+  },
+  {
+    "data": {
+      "source": "SbaiKPS1",
+      "target": "KPP",
+      "relation": "makes (small amount)",
+      "evidence_level": "moderate",
+      "reference": "PMID:37395679"
+    }
+  },
+  {
+    "data": {
+      "source": "KPP",
+      "target": "CLERO",
+      "relation": "later steps not established",
+      "evidence_level": "limited",
+      "reference": "PMID:37395679",
+      "note": "the paper tests which enzyme removes the diphosphate and does not settle it"
+    }
+  },
+  {
+    "data": {
+      "source": "NCD",
+      "target": "CLERO",
+      "relation": "later steps not established",
+      "evidence_level": "limited",
+      "reference": "PMID:37395679",
+      "note": "the paper tests which enzyme removes the diphosphate and does not settle it"
+    }
+  }
+]

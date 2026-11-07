@@ -1,0 +1,216 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend-lint:
+    name: Backend lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - run: pip install ruff
+      - run: ruff check .
+      - run: ruff format --check .
+
+  backend-test:
+    name: Backend tests (py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - run: pip install -e ".[dev]"
+      # Coverage threshold (85%) is enforced by pytest addopts in pyproject.toml
+      - run: pytest --cov-report=xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python == '3.12'
+        with:
+          name: coverage-xml
+          path: backend/coverage.xml
+
+  schema-test:
+    name: Supabase schema (Postgres + pgvector)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: postgres
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stub the Supabase storage schema (plain Postgres has no storage.buckets)
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "create schema if not exists storage; create table if not exists storage.buckets (id text primary key, name text not null, public boolean not null default false);"
+      - name: Apply migrations in order
+        run: |
+          for f in $(ls supabase/migrations/*.sql | sort); do
+            echo "Applying $f"
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+      - name: Run schema tests
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/schema_test.sql
+      - name: Migrations are idempotent-safe on a fresh DB (re-create and re-apply)
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "drop schema public cascade; create schema public;"
+          for f in $(ls supabase/migrations/*.sql | sort); do
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+  docker-build:
+    name: Backend Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: backend
+          load: true
+          tags: phytofusion-backend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test container
+        run: |
+          docker run -d --name api -p 8000:8000 phytofusion-backend:ci
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:8000/health && exit 0
+            sleep 1
+          done
+          docker logs api
+          exit 1
+
+  frontend:
+    name: Frontend (lint, typecheck, test, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect frontend
+        id: detect
+        run: |
+          if [ -f frontend/package.json ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        if: steps.detect.outputs.exists == 'true'
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: frontend
+        run: npm ci
+      - name: Lint
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: frontend
+        run: npm run lint --if-present
+      - name: Typecheck
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: frontend
+        run: npx tsc --noEmit
+      - name: Unit tests
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: frontend
+        run: npm test --if-present
+      - name: Build
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: frontend
+        run: npm run build
+      - name: Skipped
+        if: steps.detect.outputs.exists != 'true'
+        run: echo "No frontend/package.json yet, skipping."
+
+  security:
+    name: Security scans
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependency audit
+        working-directory: backend
+        run: |
+          pip install pip-audit
+          pip install .
+          pip-audit
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  science-guardrails:
+    name: Scientific guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No numeric compatibility claims in code or UI copy
+        run: |
+          # Rule: never present arbitrary compatibility percentages (docs/SCIENTIFIC_GUIDELINES.md).
+          # Test files and docs are excluded because they state the rule itself.
+          if grep -rniE '[0-9]+ ?% ?(genetic )?(compatib|success|efficacy|match)' \
+               backend/app frontend/src 2>/dev/null; then
+            echo "::error::Found a numeric compatibility/success/efficacy claim. See docs/SCIENTIFIC_GUIDELINES.md"
+            exit 1
+          fi
+      - name: No claims of real engineering or proven efficacy
+        run: |
+          if grep -rniE 'has been (genetically )?engineered|proven (to be )?effective|\bcures?\b' \
+               backend/app frontend/src 2>/dev/null; then
+            echo "::error::Found an unsupported claim. See docs/SCIENTIFIC_GUIDELINES.md"
+            exit 1
+          fi
+
+  ci-passed:
+    name: CI passed
+    if: always()
+    needs:
+      [backend-lint, backend-test, schema-test, docker-build, frontend, security, science-guardrails]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any required job failed or was cancelled
+        run: |
+          echo '${{ toJSON(needs) }}'
+          if echo '${{ toJSON(needs) }}' | grep -E '"result": "(failure|cancelled)"'; then exit 1; fi
