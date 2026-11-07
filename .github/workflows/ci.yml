@@ -21,7 +21,7 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
@@ -42,7 +42,7 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
@@ -76,7 +76,7 @@ jobs:
       PGPASSWORD: postgres
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Stub the Supabase storage schema (plain Postgres has no storage.buckets)
         run: |
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "create schema if not exists storage; create table if not exists storage.buckets (id text primary key, name text not null, public boolean not null default false);"
@@ -99,7 +99,7 @@ jobs:
     name: Backend Docker image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
@@ -122,7 +122,7 @@ jobs:
     name: Frontend (lint, typecheck, test, build)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Detect frontend
         id: detect
         run: |
@@ -164,7 +164,7 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v7
@@ -185,7 +185,7 @@ jobs:
     name: Scientific guardrails
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: No numeric compatibility claims in code or UI copy
         run: |
           # Rule: never present arbitrary compatibility percentages (docs/SCIENTIFIC_GUIDELINES.md).
