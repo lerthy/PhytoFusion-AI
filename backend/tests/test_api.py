@@ -99,3 +99,18 @@ def test_cors_allows_local_frontend():
         headers={"Origin": "http://localhost:5173", "Access-Control-Request-Method": "GET"},
     )
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+@pytest.mark.parametrize(
+    "raw, expected",
+    [
+        ("https://a.app", ["https://a.app"]),
+        ("https://a.app/", ["https://a.app"]),
+        (' "https://a.app" , http://localhost:5173 ', ["https://a.app", "http://localhost:5173"]),
+        ("", []),
+    ],
+)
+def test_cors_origins_tolerates_typos(raw, expected):
+    from app.main import cors_origins
+
+    assert cors_origins(raw) == expected

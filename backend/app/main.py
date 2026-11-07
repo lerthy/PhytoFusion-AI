@@ -20,9 +20,16 @@ app = FastAPI(title="PhytoFusion AI", version=__version__)
 app.include_router(router)
 app.add_exception_handler(StoreError, store_error_handler)
 
+
+def cors_origins(raw: str) -> list[str]:
+    """Split CORS_ORIGINS, tolerating spaces, quotes and trailing slashes."""
+    origins = (part.strip().strip("\"'").rstrip("/") for part in raw.split(","))
+    return [o for o in origins if o]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(","),
+    allow_origins=cors_origins(os.environ.get("CORS_ORIGINS", "http://localhost:5173")),
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
