@@ -26,3 +26,4 @@ skills-lock.json
 /*.fa
 /*.fasta
 *.egg-info/
+frontend/.vite/
