@@ -60,9 +60,9 @@ def compare_proteomes(
     if not host:
         raise ValueError("host proteome is empty")
 
-    # Searching one proteome against the other in full (tens of thousands of proteins each way) takes
-    # hours. Only the candidates are queries, and the reciprocal check queries only their best host
-    # hits, which gives the same answer for these genes in seconds.
+    # Searching one proteome against the other in full (tens of thousands of proteins each way)
+    # takes hours. Only the candidates are queries, and the reciprocal check queries only their
+    # best host hits, which gives the same answer for these genes in seconds.
     with tempfile.TemporaryDirectory() as tmp:
         folder = Path(tmp)
         host_fa, donor_fa = folder / "host.fa", folder / "donor.fa"

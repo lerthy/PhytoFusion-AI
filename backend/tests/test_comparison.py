@@ -139,7 +139,9 @@ def test_run_blastp_uses_threads_and_a_timeout_and_reports_a_timeout_clearly():
         raise subprocess.TimeoutExpired(cmd, kwargs["timeout"])
 
     with pytest.raises(RuntimeError, match="took longer than 5 s"):
-        run_blastp(Path("q"), Path("s"), timeout=5, threads=3, runner=runner, which=lambda _: "/bin/blastp")
+        run_blastp(
+            Path("q"), Path("s"), timeout=5, threads=3, runner=runner, which=lambda _: "/bin/blastp"
+        )
     assert seen["timeout"] == 5
     assert seen["cmd"][seen["cmd"].index("-num_threads") + 1] == "3"
     assert seen["cmd"][seen["cmd"].index("-max_target_seqs") + 1] == "5"

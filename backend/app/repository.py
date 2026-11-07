@@ -322,7 +322,9 @@ class Repository:
         return rows[0]
 
     # ---- scenarios -------------------------------------------------------------------------
-    def save_scenario(self, result: ScenarioResult, assessment: dict[str, str] | None = None) -> Row:
+    def save_scenario(
+        self, result: ScenarioResult, assessment: dict[str, str] | None = None
+    ) -> Row:
         host_id = self.species_id(result.host_species)
         if result.type == "donor_integration":
             if not result.donor_species:
