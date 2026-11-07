@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phytofusion-backend"
+version = "0.1.0"
+description = "PhytoFusion AI backend: comparative genomics, GeneBridge and CRISPR scenario engines"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.110",
+  "pydantic>=2.6",
+  "networkx>=3.2",
+  "pandas>=2.2",
+  "uvicorn>=0.29",
+  "httpx>=0.27",
+  "python-dotenv>=1.0",  # lets `uvicorn --env-file` read .env
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.5",
+  "pip-audit>=2.7",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --cov=app --cov-report=term-missing --cov-fail-under=85"
+markers = [
+  "integration: tests that need an external service such as Postgres",
+]
+
+[tool.coverage.run]
+branch = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]

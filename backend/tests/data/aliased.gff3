@@ -1,0 +1,7 @@
+##gff-version 3
+#OriSeqID=Sbai1	Accession=ACC0001
+ACC0001	test	gene	100	900	.	+	.	ID=G1
+#OriSeqID=Sbai2	Accession=ACC0002
+ACC0002	test	gene	50	400	.	-	.	ID=G2
+#OriSeqID=utg9	Accession=ACC0003
+ACC0003	test	gene	10	60	.	+	.	ID=G3

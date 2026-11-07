@@ -1,0 +1,49 @@
+name: Deploy (Supabase)
+
+# Continuous delivery. AWS is intentionally NOT used yet (see docs/STACK.md for the future plan).
+# Applies database migrations to the Supabase project. Runs manually, or on version tags.
+# The "production" environment can be configured in GitHub to require a reviewer's approval.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only show pending migrations, do not apply"
+        type: boolean
+        default: true
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify (re-use CI)
+    uses: ./.github/workflows/ci.yml
+
+  migrate:
+    name: Apply Supabase migrations
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Link project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "$SUPABASE_DB_PASSWORD"
+      - name: Show pending migrations
+        run: supabase db push --dry-run
+      - name: Apply migrations
+        if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
+        run: supabase db push --password "$SUPABASE_DB_PASSWORD"

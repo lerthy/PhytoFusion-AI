@@ -1,0 +1,8 @@
+##gff-version 3
+##sequence-region	Chr1	1	50000
+##sequence-region	Chr2	1	30000
+Chr1	test	gene	1000	2500	.	+	.	ID=gene:SbaiKPS1;Name=KPS1;Note=Kaurene%20synthase-like
+Chr1	test	mRNA	1000	2500	.	+	.	ID=SbaiKPS1.t1;Parent=gene:SbaiKPS1
+Chr2	test	gene	5000	7000	.	-	.	ID=SbaiCHS1;Name=CHS1
+
+Chr2	test	exon	5000	5500	.	-	.	ID=exon1;Parent=SbaiCHS1
