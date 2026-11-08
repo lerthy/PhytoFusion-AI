@@ -19,6 +19,24 @@ and SbaiKPS1 mainly produce neo-cleroda-4(18),13E-dienyl diphosphate with a smal
 SbarKPS1 and SbarKPS2 are a tandem gene pair with high sequence identity. Suggested evidence level for
 the app: **moderate** (one experimental study).
 
+## Traditional use (ethnopharmacology)
+
+Two reviews, checked against their PubMed abstracts. They show why the two plants are studied. Traditional
+use is a reason to investigate, **not** evidence that either plant treats anything.
+
+- ***S. baicalensis*:** Zhao T, Tang H, Xie L, et al. *Scutellaria baicalensis* Georgi (Lamiaceae): a review of
+  its traditional uses, botany, phytochemistry, pharmacology and toxicology. J Pharm Pharmacol 2019.
+  PMID **31236960**, DOI [10.1111/jphp.13129](https://doi.org/10.1111/jphp.13129). The abstract reports that the
+  root is the part used, that it is an important traditional Chinese medicine with the functions of clearing away
+  heat and dampness, purging fire and detoxification, and that over 40 compounds have been isolated, including
+  flavonoids.
+- ***S. barbata*:** Wang L, Chen W, Li M, et al. A review of the ethnopharmacology, phytochemistry, pharmacology,
+  and quality control of *Scutellaria barbata* D. Don. J Ethnopharmacol 2020. PMID **31577937**, DOI
+  [10.1016/j.jep.2019.112260](https://doi.org/10.1016/j.jep.2019.112260). The abstract reports use in traditional
+  Chinese and Korean medicine (known as Ban Zhi Lian in China), mainly for heat-clearing and detoxifying effects,
+  more than 203 compounds with neo-clerodane diterpenoids and flavonoids as the main ones, and that most
+  neo-clerodanes were cytotoxic to different cancer cell types in vitro.
+
 ## Genome papers and records
 
 - **Comparative Genome Analysis of *Scutellaria baicalensis* and *Scutellaria barbata* Reveals the

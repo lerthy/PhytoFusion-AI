@@ -21,6 +21,8 @@ Full scientific and technical plan: [Context.md](Context.md).
 | [docs/STACK.md](docs/STACK.md) | Supabase stack and the future AWS plan |
 | [docs/SOURCES.md](docs/SOURCES.md) | Papers, genome records and the KPS gene matching, with links |
 | [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | UI style, palette, accessibility checks |
+| [docs/VALIDATION.md](docs/VALIDATION.md) | How the gene matching was checked, with numbers, and what is not validated |
+| [docs/DEMO.md](docs/DEMO.md) | A click-by-click script for recording the demo |
 | [docs/TESTING.md](docs/TESTING.md) | Test strategy and how to run tests |
 | [docs/CICD.md](docs/CICD.md) | CI/CD pipelines and required secrets |
 | [docs/DEVPOST.md](docs/DEVPOST.md) | Devpost submission text, field by field, plus a checklist against the challenge requirements |
