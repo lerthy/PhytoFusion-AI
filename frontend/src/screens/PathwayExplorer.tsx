@@ -6,6 +6,7 @@ import { EvidenceBadge } from "../components/EvidenceBadge";
 import { FileLoader } from "../components/FileLoader";
 import { Alert, Button, Card, EmptyState, Field, More, PageHead, TableWrap } from "../components/ui";
 import { useAsync } from "../hooks";
+import kpsExample from "../../../data/pathways/kps-clerodane.json";
 import { validateElements, type Element } from "../pathway";
 import type { Level } from "../types";
 
@@ -77,6 +78,10 @@ export function PathwayExplorer() {
             </div>
           </div>
         )}
+        <div className="row" style={{ marginBottom: 12 }}>
+          <Button onClick={() => open(validateElements(kpsExample), "KPS enzymes (Qiu et al. 2023)")}>Try the KPS example</Button>
+          <span className="muted">The case-study enzymes, with every step sourced (PMID 37395679).</span>
+        </div>
         <FileLoader label={hasSaved ? "Or open a JSON file" : "Open a pathway JSON file"} accept=".json" hint="The format produced by the backend's to_cytoscape()."
           onText={(text, file) => { try { open(validateElements(JSON.parse(text)), file); } catch (e) { setElements(null); setLoadError((e as Error).message); } }} />
         {loadError && <Alert kind="error" title="Could not open this graph">{loadError}</Alert>}
@@ -85,7 +90,7 @@ export function PathwayExplorer() {
       </Card>
 
       {!elements ? (
-        <EmptyState icon="network" title="No pathway open" />
+        <EmptyState icon="network" title="No pathway open">Choose “Try the KPS example” above to see how the genes and compounds connect.</EmptyState>
       ) : (
         <>
           <Card title={title || "Pathway"} icon="network">

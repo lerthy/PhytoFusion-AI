@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { getGenome, listSpecies } from "../api";
 import { ChromosomeMap } from "../components/ChromosomeMap";
 import { ErrorNote } from "../components/ErrorNote";
@@ -12,6 +12,10 @@ import type { Species } from "../types";
 // Loaded on demand so the 3D library is only downloaded when someone opens the 3D view.
 const Genome3D = lazy(() => import("../components/Genome3D"));
 
+const noteOf = (g: { family?: string | null; description?: string | null }) => [g.family, g.description].filter(Boolean).join(" · ");
+const formatLength = (bp: number) => (bp >= 1000 ? `${(bp / 1000).toFixed(1)} kb` : `${bp} bp`);
+// The case-study genes (see docs/SOURCES.md), offered as one-click searches.
+const CASE_GENES: Record<"host" | "donor", string[]> = { host: ["Sbai8C203T0"], donor: ["Sbar9A9T61", "Sbar9A10T43"] };
 const plural = (n: number, word: string) => `${n.toLocaleString()} ${word}${n === 1 ? "" : "s"}`;
 
 interface SlotProps {
@@ -48,6 +52,8 @@ function Slot({ title, role, genome, setGenome, species, onSource }: SlotProps) 
     return genome.genes.filter((g) => !q || g.geneId.toLowerCase().includes(q) || (g.family ?? "").toLowerCase().includes(q) || (g.description ?? "").toLowerCase().includes(q));
   }, [genome, filter]);
   const hits = useMemo(() => new Set(filter ? matches.map((g) => g.geneId) : []), [matches, filter]);
+  // Many annotations only repeat the gene ID as a note. Show the column only when it says something more.
+  const showNotes = useMemo(() => !!genome && genome.genes.slice(0, 500).some((g) => { const n = noteOf(g); return !!n && n !== g.geneId; }), [genome]);
 
   const loadFromDb = async () => {
     setBusy(true);
@@ -64,6 +70,16 @@ function Slot({ title, role, genome, setGenome, species, onSource }: SlotProps) 
       setBusy(false);
     }
   };
+
+  // The two saved plants are the case study, so open them straight away (once). A person can still
+  // pick another species, load again, or open a file instead.
+  const triedAuto = useRef(false);
+  useEffect(() => {
+    if (triedAuto.current || genome || useFile || !hasDb || !speciesId || busy) return;
+    triedAuto.current = true;
+    void loadFromDb();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasDb, speciesId, genome, useFile, busy]);
 
   const showFile = useFile || !hasDb;
 
@@ -98,7 +114,7 @@ function Slot({ title, role, genome, setGenome, species, onSource }: SlotProps) 
       )}
       <div style={{ marginTop: 12 }}><ErrorNote error={error} /></div>
 
-      {!genome && !error && <EmptyState icon="dna" title="Nothing loaded yet" />}
+      {!genome && !error && (busy ? <Skeleton lines={6} /> : <EmptyState icon="dna" title="Nothing loaded yet" />)}
       {genome && (
         <>
           <p style={{ marginTop: 12 }}><strong>{label}</strong> <span className="muted">· {plural(genome.genes.length, "gene")} · {plural(Object.keys(lengths).length, "sequence")}</span></p>
@@ -113,13 +129,19 @@ function Slot({ title, role, genome, setGenome, species, onSource }: SlotProps) 
               <Genome3D label={title} lengths={lengths} genes={genome.genes} hits={hits} names={genome.aliases} />
             </Suspense>
           )}
+          <p className="row" style={{ margin: "0 0 var(--s2)" }}>
+            <span className="muted">Case-study genes:</span>
+            {CASE_GENES[role].map((id) => (
+              <Button key={id} variant="secondary" small onClick={() => { setFilter(id); setShown(25); }}><span className="mono">{id}</span></Button>
+            ))}
+          </p>
           <Field label="Find a gene" hint={filter ? `${matches.length} found, highlighted on the map` : undefined}>
             {(a) => <input {...a} type="search" value={filter} onChange={(e) => { setFilter(e.target.value); setShown(25); }} placeholder="Gene name, family or note" />}
           </Field>
           {matches.length === 0 ? <EmptyState icon="search" title="No genes match" /> : (
             <TableWrap label={`${title} genes`}>
               <table>
-                <thead><tr><th>Gene</th><th>Location</th><th>Notes</th></tr></thead>
+                <thead><tr><th>Gene</th><th>Location</th><th className="num">Length</th>{showNotes && <th>Notes</th>}</tr></thead>
                 <tbody>
                   {matches.slice(0, shown).map((g) => (
                     <tr key={g.geneId} tabIndex={0} className={activeId === g.geneId ? "is-active" : undefined}
@@ -127,7 +149,8 @@ function Slot({ title, role, genome, setGenome, species, onSource }: SlotProps) 
                       onFocus={() => setActiveId(g.geneId)} onBlur={() => setActiveId(null)}>
                       <td className="mono">{g.geneId}</td>
                       <td>{genome.aliases?.[g.chromosome] ?? g.chromosome}: {g.start.toLocaleString()}–{g.end.toLocaleString()}</td>
-                      <td>{[g.family, g.description].filter(Boolean).join(" · ") || "–"}</td>
+                      <td className="num">{formatLength(g.end - g.start + 1)}</td>
+                      {showNotes && <td>{noteOf(g) || "–"}</td>}
                     </tr>
                   ))}
                 </tbody>

@@ -36,6 +36,9 @@ export default function App() {
 
   const goTo = (id: RouteId) => { window.location.hash = routeHash(id); };
   const step = navOf(route);
+  const stepIndex = NAV.findIndex((n) => n.id === step.id);
+  const prevStep = stepIndex > 0 ? NAV[stepIndex - 1] : null;
+  const nextStep = stepIndex >= 0 && stepIndex < NAV.length - 1 ? NAV[stepIndex + 1] : null;
 
   if (route === "about") return <About onStart={() => goTo("dashboard")} />;
 
@@ -75,6 +78,12 @@ export default function App() {
           {route === "report" && <VirtualPlantReport result={result} onOpen={setResult} goToScenario={() => goTo("crispr")} />}
           </div>
         </ErrorBoundary>
+        {prevStep && (
+          <nav className="nextbar" aria-label="Continue">
+            <button className="btn secondary" onClick={() => goTo(prevStep.routes[0])}>Back: {prevStep.label}</button>
+            {nextStep && <button className="btn" onClick={() => goTo(nextStep.routes[0])}>Next: {nextStep.label}</button>}
+          </nav>
+        )}
         <footer className="app-foot">Hypothetical, computational scenarios only. Evidence levels say how well a claim is supported, not whether it would work.</footer>
       </main>
     </div>

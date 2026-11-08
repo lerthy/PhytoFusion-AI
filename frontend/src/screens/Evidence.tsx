@@ -12,6 +12,15 @@ const LEVELS: { value: Level; label: string }[] = [
   { value: "limited", label: "Limited: mostly predictions or missing information" },
 ];
 
+// The paper behind the case study. Text follows the abstract in docs/SOURCES.md; nothing is added to it.
+const KEY_PAPER = {
+  pmid: "37395679",
+  doi: "10.1111/tpj.16377",
+  title: "Tandem duplication and sub-functionalization of clerodane diterpene synthase originate the blooming of clerodane diterpenoids in Scutellaria barbata",
+  finding: "SbarKPS1 is a monofunctional (-)-kolavenyl diphosphate synthase. SbarKPS2 and SbaiKPS1 mainly produce neo-cleroda-4(18),13E-dienyl diphosphate with a small amount of (-)-kolavenyl diphosphate. SbarKPS1 and SbarKPS2 are a tandem gene pair with high sequence identity.",
+  level: "moderate" as Level,
+};
+
 function AddEvidence({ onAdded }: { onAdded: () => void }) {
   const [form, setForm] = useState({ finding: "", level: "moderate" as Level, pmid: "", doi: "", title: "" });
   const [tried, setTried] = useState(false);
@@ -41,6 +50,10 @@ function AddEvidence({ onAdded }: { onAdded: () => void }) {
 
   return (
     <form onSubmit={submit} noValidate>
+      <p className="row" style={{ marginTop: 0 }}>
+        <Button type="button" variant="secondary" small onClick={() => setForm({ ...KEY_PAPER })}>Fill in the key paper</Button>
+        <span className="muted">Qiu et al., The Plant Journal 2023: the KPS enzymes in both plants. Check it, then press Add.</span>
+      </p>
       <div className="grid">
         <Field label="PMID" error={tried && noSource ? "Enter a PMID or a DOI." : null}>{(a) => <input {...a} value={form.pmid} onChange={set("pmid")} />}</Field>
         <Field label="DOI">{(a) => <input {...a} value={form.doi} onChange={set("doi")} placeholder="10.xxxx/xxxxx" />}</Field>
