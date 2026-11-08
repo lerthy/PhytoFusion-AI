@@ -60,6 +60,20 @@ class Repository:
             raise LookupError(f"gene {gene_id!r} was not found for this species; ingest it first")
         return genes[0]
 
+    def locate(self, gene_id: str, species_id: str) -> dict[str, Any] | None:
+        """Where one gene sits (sequence name, position, strand), or None if it is not saved."""
+        try:
+            gene = self.find_gene(gene_id, species_id)
+        except LookupError:
+            return None
+        rows = self.store.select("chromosomes", eq={"id": gene["chromosome_id"]}, limit=1)
+        return {
+            "chromosome": rows[0].get("name") if rows else None,
+            "start_bp": gene["start_bp"],
+            "end_bp": gene["end_bp"],
+            "strand": gene["strand"],
+        }
+
     def gene_lookup(self, species_name: str, gene_id: str) -> dict[str, Any]:
         """Where a gene sits: its sequence, position, strand and the sequence's length."""
         gene = self.find_gene(gene_id, self.species_id(species_name))

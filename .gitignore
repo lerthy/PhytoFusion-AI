@@ -28,3 +28,18 @@ skills-lock.json
 *.egg-info/
 frontend/.vite/
 ~$*
+
+# BLAST index files made by makeblastdb (demo and validation steps)
+*.phr
+*.pin
+*.psq
+*.pdb
+*.pot
+*.ptf
+*.pto
+*.pjs
+*.pnd
+*.pni
+*.pog
+*.pos
+*.pdb

@@ -1,5 +1,5 @@
 import type {
-  AssessInput, AssessResult, ComparisonRow, EvidenceRow, GenomeResponse, Level, LiteratureHit, PathwayItem,
+  AssessInput, AssessResult, ComparisonRow, EvidenceRow, GeneFindResult, GenomeResponse, Level, LiteratureHit, PathwayItem,
   PipelineRow, ScenarioItem, SimulateRequest, SimulateResult, Species, Stats,
 } from "./types";
 
@@ -63,6 +63,10 @@ export const lookupGene = (species: string, gene: string) =>
 
 export const explainResult = (kind: "comparison" | "report", facts: Record<string, unknown>) =>
   request<{ text: string; model: string }>("/api/explain", { method: "POST", body: JSON.stringify({ kind, facts }) }, 90_000);
+
+/** Which genes of a plant match a protein sequence or NCBI accession. Computed by BLAST+, not by AI. */
+export const findGenes = (speciesId: string, query: string) =>
+  request<GeneFindResult>("/api/genes/find", { method: "POST", body: JSON.stringify({ species_id: speciesId, query }) }, 90_000);
 
 export const getStats = () => request<Stats>("/api/stats");
 export const listSpecies = () => request<Species[]>("/api/species");

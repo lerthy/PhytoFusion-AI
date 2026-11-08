@@ -64,7 +64,7 @@ margin is currently only in this document.
 
 | Check | Result (latest CI run on `dev`) |
 |---|---|
-| Backend tests | 221 passed, 98.3% line coverage (gate: 85%) |
+| Backend tests | 248 passed, 98% line coverage (gate: 85%) |
 | Frontend tests | 74 passed |
 | Database schema | Applied on a real Postgres with pgvector, then re-applied from scratch |
 | Scientific guardrails | CI fails if code or UI copy contains a numeric compatibility claim, "has been engineered", "proven effective" or "cures" |

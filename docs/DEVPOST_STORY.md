@@ -26,7 +26,7 @@ plants. That gave us a precise, testable question for a hypothetical CRISPR gene
 **PhytoFusion AI** is a computational platform for reasoning about that question. Nothing is edited or built.
 
 - **Genomes:** both published genomes (30,313 and 34,909 genes) as chromosome maps drawn to scale, with a 3D view.
-- **Compare genes:** BLAST finds the closest host gene for a donor gene, then a reciprocal check confirms it.
+- **Compare genes:** BLAST finds the closest host gene for a donor gene, then a reciprocal check confirms it. Don't know the gene ID? Paste a protein sequence or an NCBI accession and BLAST lists the matching genes (computed, not an AI guess).
 - **Pathways:** how genes, enzymes and compounds connect, with a source and an evidence level on every step.
 - **Evidence:** a strong, moderate or limited class for each finding. Never a score or a probability.
 - **Scenario and report:** a hypothetical gene transfer, with what it could mean, **what we don't know**, and the limits.
@@ -39,7 +39,7 @@ labelled as AI-written and never sets an evidence level.
 - **Backend:** Python, FastAPI and pydantic, with BLAST+ for the sequence search, in a Docker container on Render.
 - **Frontend:** React and TypeScript with Vite, Cytoscape for the pathway graph and three.js for the 3D views, on Netlify.
 - **Data:** Supabase (Postgres with pgvector, row-level security, versioned SQL migrations).
-- **Quality:** 221 backend tests at 98% coverage, 74 frontend tests, and GitHub Actions CI with seven checks.
+- **Quality:** 248 backend tests at 98% coverage, 74 frontend tests, and GitHub Actions CI with seven checks.
   The pipeline also fails the build if the code ever contains a numeric success claim or says a plant "has been engineered".
 - **Documentation:** a README plus 14 documents, including a sources file where every claim traces to a PMID or DOI.
 

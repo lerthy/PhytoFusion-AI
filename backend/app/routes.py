@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from functools import lru_cache
 from typing import Any, Literal
 
@@ -18,6 +19,7 @@ from .explain import (
     backend_from_env,
     explain,
 )
+from .findgene import FetchError, QueryError, find_genes, resolve_query
 from .genebridge import AssessmentInput, assess
 from .literature import Embedder, embedder_from_env
 from .pipeline import assessment_for, compare_proteomes
@@ -90,6 +92,69 @@ def genome(species_id: str, repo: Repository = Depends(get_repo)) -> dict[str, A
         return repo.genome(species_id)
     except LookupError as exc:
         raise _not_found(exc) from exc
+
+
+# ---- find a gene by protein sequence (BLAST, no AI) -----------------------------------------
+_find_limiter = RateLimiter(per_ip_per_hour=20, per_day=300)
+_protein_cache: dict[str, tuple[float, dict[str, str]]] = {}
+PROTEIN_CACHE_SECONDS = 1800.0
+
+
+def _proteome(repo: Repository, species_id: str) -> dict[str, str]:
+    """A plant's proteins, kept for a while so repeated searches do not reload ~35,000 rows."""
+    cached = _protein_cache.get(species_id)
+    if cached and time.time() - cached[0] < PROTEIN_CACHE_SECONDS:
+        return cached[1]
+    data = repo.proteins(species_id)
+    if data:
+        _protein_cache[species_id] = (time.time(), data)
+    return data
+
+
+class FindGeneRequest(BaseModel):
+    species_id: str
+    query: str = Field(min_length=1, max_length=20000)
+
+
+@router.post("/genes/find")
+def find_gene_by_sequence(
+    body: FindGeneRequest, request: Request, repo: Repository = Depends(get_repo)
+) -> dict[str, Any]:
+    """Which genes of a plant match a protein sequence or NCBI accession. Computed by BLAST+."""
+    if not _find_limiter.allow(_client_ip(request)):
+        raise HTTPException(429, "Too many searches. Try again later.")
+    try:
+        query = resolve_query(body.query)
+    except QueryError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except FetchError as exc:
+        raise HTTPException(502, str(exc)) from exc
+    proteome = _proteome(repo, body.species_id)
+    if not proteome:
+        raise HTTPException(
+            404,
+            "No protein sequences are saved for this plant yet. Load them with the seed script.",
+        )
+    try:
+        hits = find_genes(query.sequence, proteome)
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc)) from exc
+    return {
+        "query": {"kind": query.kind, "name": query.name, "length": len(query.sequence)},
+        "computed_by": "BLAST+ (blastp)",
+        "hits": [
+            {
+                "gene_id": h.gene_id,
+                "percent_identity": h.percent_identity,
+                "aligned_aa": h.aligned_aa,
+                "evalue": h.evalue,
+                "bitscore": h.bitscore,
+                "kind": h.kind,
+                "location": repo.locate(h.gene_id, body.species_id),
+            }
+            for h in hits
+        ],
+    }
 
 
 @router.get("/genes/lookup")

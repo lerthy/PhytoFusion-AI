@@ -27,7 +27,7 @@ Our case study: *Scutellaria baicalensis* (host, known for flavonoids such as ba
 A web platform made of five connected engines:
 
 1. **Scientific data ingestion:** loads genome annotations and protein sequences (GFF3 and FASTA) and publications into Supabase Postgres.
-2. **Comparative genomics:** BLAST+ `blastp` of donor candidate genes against the host proteome, followed by a reciprocal best-hit check. Gene positions are shown on chromosome maps and a 3D helix view.
+2. **Comparative genomics:** BLAST+ `blastp` of donor candidate genes against the host proteome, followed by a reciprocal best-hit check. Gene positions are shown on chromosome maps and a 3D helix view. A "find a gene by sequence" search takes a protein sequence or an NCBI accession and lists the matching genes (computed by BLAST, not AI).
 3. **Pathway intelligence:** a curated pathway graph where every edge carries a source and an evidence level.
 4. **GeneBridge:** a categorical assessment of sequence, function, pathway, expression and context, with an evidence class (strong, moderate or limited). It never produces a score or probability, and it says "unknown" when evidence is missing.
 5. **CRISPR scenario simulator:** two hypothetical modes (host gene modification and donor integration) that produce a report restating only facts supplied by the other engines, with explicit limits.
@@ -74,7 +74,7 @@ What the working prototype shows:
 - **Checks that fit the biology:** the two donor genes lie 38 kb apart on the same sequence and strand (a tandem pair), and `Sbar9A9T61` and `Sbai8C203T0` are each other's best match in the app's reciprocal check (89%).
 - **Report:** a saved scenario shows the donor gene on its chromosome, a hypothetical arrow to an open host slot ("insertion site: not chosen"), a moderate evidence level (one experimental study), what we don't know, and the limits.
 
-**How we checked it** (full write-up: `docs/VALIDATION.md`): the paper's own protein finds its gene at 100% identity; the best host hit for both KPS proteins is `Sbai8C203T0` at 84% and 89%, against a runner-up near 57%; and the two donor genes lie 38 kb apart as a tandem pair should. We also report an honest limit: 86% of 300 random donor genes would be labelled "related" too, because the plants share a genus, so the label alone is not the signal. The mutual best match and the gap to the runner-up are. Backend tests: 221 passing at 98% coverage; frontend: 74 passing.
+**How we checked it** (full write-up: `docs/VALIDATION.md`): the paper's own protein finds its gene at 100% identity; the best host hit for both KPS proteins is `Sbai8C203T0` at 84% and 89%, against a runner-up near 57%; and the two donor genes lie 38 kb apart as a tandem pair should. We also report an honest limit: 86% of 300 random donor genes would be labelled "related" too, because the plants share a genus, so the label alone is not the signal. The mutual best match and the gap to the runner-up are. Backend tests: 248 passing at 98% coverage; frontend: 74 passing.
 
 **Honest limits:** two of the three gene matches are inferences from sequence similarity, so we call them best matches. The paper's own gene ID table would confirm them. No genome is edited, no engineered plant exists, and nothing here says how well a compound would work as a medicine.
 

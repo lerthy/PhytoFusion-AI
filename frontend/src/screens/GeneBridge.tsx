@@ -5,6 +5,7 @@ import { ApiError } from "../api";
 import { ErrorNote } from "../components/ErrorNote";
 import { EvidenceBadge } from "../components/EvidenceBadge";
 import { ExplainButton } from "../components/ExplainButton";
+import { FindGene } from "../components/FindGene";
 import { Button, Card, EmptyState, Field, More, PageHead, Skeleton, TableWrap } from "../components/ui";
 import { useAsync } from "../hooks";
 import { DEFAULT_ASSESS, type AssessInput, type AssessResult, type PipelineRow } from "../types";
@@ -70,6 +71,11 @@ function Screening({ onSaved }: { onSaved: () => void }) {
           <Field label="Host plant" error={tried && !hostId ? "Choose the host plant." : null}>{pick(hostId, setHostId)}</Field>
           <Field label="Donor plant" error={tried && !donorId ? "Choose the donor plant." : tried && same ? "Host and donor must be different." : null}>{pick(donorId, setDonorId)}</Field>
         </div>
+        <FindGene
+          speciesId={donorId}
+          speciesName={species.data?.find((x) => x.id === donorId)?.scientific_name ?? ""}
+          onUse={(id) => setGenes((g) => (g.split(/[,\s]+/).filter(Boolean).includes(id) ? g : g.trim() ? `${g.trim().replace(/,$/, "")}, ${id}` : id))}
+        />
         <Field label="Donor genes" hint="Separate several with commas." error={tried && ids.length === 0 ? "Enter at least one gene." : null}>
           {(a) => <input {...a} value={genes} onChange={(e) => setGenes(e.target.value)} />}
         </Field>

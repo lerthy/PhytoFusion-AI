@@ -85,3 +85,14 @@ export interface ComparisonRow {
 }
 export interface PathwayItem { id: string; name: string; description: string | null }
 export interface ScenarioItem { id: string; created_at?: string; type: ScenarioType; target_gene_id: string; scenario: string; evidence_level: Level }
+
+export interface GeneFindHit {
+  gene_id: string; percent_identity: number; aligned_aa: number; evalue: number; bitscore: number;
+  kind: "same_protein" | "related" | "weakly_related";
+  location: { chromosome: string | null; start_bp: number; end_bp: number; strand: string } | null;
+}
+export interface GeneFindResult {
+  query: { kind: "accession" | "fasta" | "sequence"; name: string; length: number };
+  computed_by: string;
+  hits: GeneFindHit[];
+}
