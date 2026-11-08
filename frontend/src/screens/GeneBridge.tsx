@@ -4,6 +4,7 @@ import { AssessmentFields } from "../components/AssessmentFields";
 import { ApiError } from "../api";
 import { ErrorNote } from "../components/ErrorNote";
 import { EvidenceBadge } from "../components/EvidenceBadge";
+import { ExplainButton } from "../components/ExplainButton";
 import { Button, Card, EmptyState, Field, More, PageHead, Skeleton, TableWrap } from "../components/ui";
 import { useAsync } from "../hooks";
 import { DEFAULT_ASSESS, type AssessInput, type AssessResult, type PipelineRow } from "../types";
@@ -95,6 +96,20 @@ function Screening({ onSaved }: { onSaved: () => void }) {
             </table>
           </TableWrap>
           <p className="muted" style={{ marginTop: 8 }}>Similarity is how alike the two proteins are. It does not say the gene would work in the host.</p>
+          <ExplainButton
+            key={JSON.stringify(rows)}
+            kind="comparison"
+            facts={{
+              comparisons: rows.map((r) => ({
+                donor_gene: r.donor_gene,
+                closest_host_gene: r.host_gene,
+                percent_identity: r.percent_identity,
+                mutual_best_match: r.reciprocal_best_hit,
+                sequence_relationship: r.sequence_relationship,
+              })),
+              note: "Similarity says how alike two proteins are. It does not say the gene would work in the host.",
+            }}
+          />
         </>
       )}
     </Card>

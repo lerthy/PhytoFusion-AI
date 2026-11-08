@@ -5,10 +5,19 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from .crispr import ScenarioInput, simulate
+from .explain import (
+    KINDS,
+    Backend,
+    ExplainRefused,
+    ExplainUnavailable,
+    RateLimiter,
+    backend_from_env,
+    explain,
+)
 from .genebridge import AssessmentInput, assess
 from .literature import Embedder, embedder_from_env
 from .pipeline import assessment_for, compare_proteomes
@@ -41,6 +50,23 @@ def get_embedder() -> Embedder:
         return embedder_from_env()
     except NotConfigured as exc:
         raise HTTPException(503, f"Embeddings not configured: {exc}") from exc
+
+
+def get_ai_backend() -> Backend:
+    try:
+        return backend_from_env()
+    except NotConfigured as exc:
+        raise HTTPException(503, f"AI explanations are not configured: {exc}") from exc
+
+
+_explain_limiter = RateLimiter()
+
+
+def _client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 def _not_found(exc: LookupError) -> HTTPException:
@@ -280,3 +306,29 @@ def store_error_handler(_request: Any, exc: StoreError) -> Any:
     from fastapi.responses import JSONResponse
 
     return JSONResponse(status_code=502, content={"detail": str(exc)})
+
+
+# ---- AI explanation (optional; needs ANTHROPIC_API_KEY) -------------------------------------
+class ExplainRequest(BaseModel):
+    kind: Literal["comparison", "report"]
+    facts: dict[str, Any]
+
+
+@router.post("/explain")
+def explain_result(
+    body: ExplainRequest, request: Request, backend: Backend = Depends(get_ai_backend)
+) -> dict[str, str]:
+    """A short plain-language explanation of facts the app already computed. Written by Claude."""
+    if body.kind not in KINDS:
+        raise HTTPException(422, "Unknown kind")
+    if not _explain_limiter.allow(_client_ip(request)):
+        raise HTTPException(429, "Too many explanations requested. Try again later.")
+    try:
+        text = explain(body.kind, body.facts, backend)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except ExplainUnavailable as exc:
+        raise HTTPException(503, str(exc)) from exc
+    except ExplainRefused as exc:
+        raise HTTPException(502, str(exc)) from exc
+    return {"text": text, "model": backend.model}
