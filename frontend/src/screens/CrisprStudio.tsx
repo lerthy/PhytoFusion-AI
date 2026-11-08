@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { listSpecies, saveScenario, simulate } from "../api";
 import { AssessmentFields } from "../components/AssessmentFields";
 import { ErrorNote } from "../components/ErrorNote";
@@ -32,6 +32,14 @@ export function CrisprStudio({ host, donor, onResult, goToReport }: Props) {
   const [error, setError] = useState<Error | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // Offer the two saved plants as the starting point, so the form is not blank.
+  useEffect(() => {
+    if (!species.data) return;
+    const name = (role: string) => species.data?.find((x) => x.role === role)?.scientific_name ?? "";
+    setHostSpecies((v) => v || name("host"));
+    setDonorSpecies((v) => v || name("donor"));
+  }, [species.data]);
+
   const integration = type === "donor_integration";
   const source = integration ? donor : host;
   const problems = {
@@ -45,6 +53,18 @@ export function CrisprStudio({ host, donor, onResult, goToReport }: Props) {
     setGeneId(id);
     const found = source?.genes.find((g) => g.geneId === id);
     if (found) setChromosome(found.chromosome);
+  };
+
+  const useCaseStudy = () => {
+    setType("donor_integration");
+    setHostSpecies("Scutellaria baicalensis");
+    setDonorSpecies("Scutellaria barbata");
+    setGeneId("Sbar9A9T61");
+    setChromosome("Sbar9");
+    setFn("Class II diterpene synthase (KPS2) that mainly produces neo-cleroda-4(18),13E-dienyl diphosphate, with a small amount of (-)-kolavenyl diphosphate (Qiu et al. 2023).");
+    setPathway("Clerodane diterpenoid biosynthesis");
+    setRefs("PMID:37395679");
+    setAssessment({ sequence: "related", functional: "characterized", pathway: "unknown", expression: "unavailable", context: "characterized" });
   };
 
   const run = async (e: React.FormEvent) => {
@@ -75,6 +95,10 @@ export function CrisprStudio({ host, donor, onResult, goToReport }: Props) {
       <PageHead title="New scenario">Pick a gene and see what moving it into another plant could mean, and what is still unknown.</PageHead>
       <form onSubmit={run} noValidate>
         <Card>
+          <p className="row" style={{ marginTop: 0 }}>
+            <Button type="button" variant="secondary" small onClick={useCaseStudy}>Use the case study</Button>
+            <span className="muted">Fills in <span className="mono">Sbar9A9T61</span>, the donor KPS gene, with what the paper reports.</span>
+          </p>
           <div className="seg" role="group" aria-label="Scenario type">
             <button type="button" aria-pressed={integration} onClick={() => setType("donor_integration")}>Add a gene from another plant</button>
             <button type="button" aria-pressed={!integration} onClick={() => setType("host_modification")}>Change a gene in the host</button>

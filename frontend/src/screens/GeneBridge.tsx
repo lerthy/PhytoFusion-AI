@@ -88,7 +88,14 @@ function Screening({ onSaved }: { onSaved: () => void }) {
                   <tr key={r.donor_gene}>
                     <td className="mono">{r.donor_gene}</td>
                     <td className="mono">{r.host_gene ?? "none found"}</td>
-                    <td className="num">{r.percent_identity != null ? `${r.percent_identity.toFixed(0)}%` : "–"}</td>
+                    <td className="num">
+                      {r.percent_identity != null ? (
+                        <span className="simbar-cell">
+                          <span className={`simbar ${r.reciprocal_best_hit ? "mutual" : ""}`} aria-hidden="true"><i style={{ width: `${Math.max(2, Math.min(100, r.percent_identity))}%` }} /></span>
+                          {r.percent_identity.toFixed(0)}%
+                        </span>
+                      ) : "–"}
+                    </td>
                     <td>{MATCH_WORDS[r.sequence_relationship]}{r.reciprocal_best_hit ? " · mutual best match" : ""}</td>
                   </tr>
                 ))}

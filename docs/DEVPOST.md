@@ -76,7 +76,7 @@ What the working prototype shows:
 ## Team members
 
 - **Edina Suma:** licensed Pharmacy Technician and Bachelor of Pharmacy student, Faculty of Medicine, University of Prishtina. Led the science.
-- **[Teammate name]:** DevOps Engineer. Built the pipelines, tests, deployment and the app.
+- **Lerdi Salihi:** DevOps Engineer. Built the pipelines, tests, deployment and the app.
 
 ## Impact and future development
 
@@ -104,6 +104,5 @@ What the working prototype shows:
 ## Before you submit
 
 - **The GitHub repository is private.** Make it public, or add the judges, before submitting the link.
-- **Teammate name:** replace `[Teammate name]` above (and the "DevOps Engineer" card on deck slide 20).
 - **Wake the backend** (open the Render `/health` address) shortly before judging.
 - **Demo video:** the pitch script in `Phytofusion-done.pdf` matches the deck order.
