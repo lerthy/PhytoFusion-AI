@@ -61,6 +61,9 @@ export interface GeneLocation {
 export const lookupGene = (species: string, gene: string) =>
   request<GeneLocation>(`/api/genes/lookup?species=${encodeURIComponent(species)}&gene=${encodeURIComponent(gene)}`);
 
+export const explainResult = (kind: "comparison" | "report", facts: Record<string, unknown>) =>
+  request<{ text: string; model: string }>("/api/explain", { method: "POST", body: JSON.stringify({ kind, facts }) }, 90_000);
+
 export const getStats = () => request<Stats>("/api/stats");
 export const listSpecies = () => request<Species[]>("/api/species");
 export const getGenome = (id: string) => request<GenomeResponse>(`/api/genome/${encodeURIComponent(id)}`);

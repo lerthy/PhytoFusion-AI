@@ -40,6 +40,16 @@ Supersedes the AWS deployment section of `Context.md`. Nothing here depends on A
 
 Do this only after the prototype works.
 
+![Potential AWS architecture](architecture/aws-target.png)
+
+The diagram is generated as code with [AWS Diagram-as-Code](https://github.com/awslabs/diagram-as-code) (`awsdac`). Edit [`architecture/aws-target.yaml`](architecture/aws-target.yaml) and regenerate it from the repository root:
+
+```bash
+awsdac docs/architecture/aws-target.yaml -o docs/architecture/aws-target.png -f
+```
+
+Cognito sign-in, WAF and Bedrock appear in the diagram as later additions; the numbered steps below are the core migration.
+
 1. **Database:** move Supabase Postgres to RDS or Aurora PostgreSQL with the `pgvector` extension. Use `pg_dump` and `pg_restore`. The schema is plain Postgres plus pgvector, so it should port without changes.
 2. **Files:** copy the `genomes` bucket to S3 and switch the storage client in the backend.
 3. **Backend:** containerize FastAPI and run it on ECS Fargate behind an ALB.

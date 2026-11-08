@@ -14,9 +14,10 @@ Configuration lives in the repo: [`netlify.toml`](../netlify.toml) and [`render.
 
 1. Sign in at <https://render.com> with GitHub.
 2. **New > Blueprint**, pick this repository. Render reads `render.yaml` and proposes the service `phytofusion-api`.
-3. Fill the three secrets it asks for:
+3. Fill the secrets it asks for:
    - `SUPABASE_URL`: `https://<project-ref>.supabase.co`
    - `SUPABASE_SERVICE_ROLE_KEY`: Supabase dashboard > Project Settings > API (backend only, never in the frontend)
+   - `AI_API_KEY` (optional): turns on the "Explain in plain words" buttons. The free option is a Groq key from <https://console.groq.com/keys>. Optional extras: `AI_MODEL` (default `openai/gpt-oss-120b`) and `AI_BASE_URL` (default Groq). To use Claude instead, set `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`). Without a key the app works the same and the buttons say AI is not switched on. The API limits requests per address and per day.
    - `CORS_ORIGINS`: your Netlify address, for example `https://phytofusion.netlify.app` (no trailing slash). Several origins are separated by commas. Put a placeholder first and update it after step 2.
 4. Deploy. When it is live, open `https://<service>.onrender.com/health`. It should answer `ok`.
 

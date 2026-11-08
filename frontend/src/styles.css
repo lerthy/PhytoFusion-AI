@@ -384,3 +384,9 @@ tbody tr { transition: background var(--t-fast) ease; }
 @media (prefers-reduced-motion: reduce) {
   .hero .fig-dot { display: none; }
 }
+
+/* ---- AI explanation ----------------------------------------------------------------------------------- */
+.explain { margin: var(--s3) 0; }
+.explain-card { margin-top: var(--s2); padding: var(--s3) var(--s4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--primary-soft); color: var(--text); max-width: 68ch; }
+.explain-card p { margin: 0 0 var(--s2); }
+.explain-note { font-size: 0.82rem; margin: var(--s2) 0 0; display: flex; gap: var(--s1); align-items: center; }

@@ -1,0 +1,179 @@
+# Potential AWS architecture for PhytoFusion AI (a plan, not deployed; today's stack is Netlify + Render + Supabase).
+# Flows top to bottom: users -> edge -> VPC (load balancer -> backend -> database) -> services; GitHub deploys from the bottom.
+# Render with:  awsdac docs/architecture/aws-target.yaml -o docs/architecture/aws-target.png -f
+Diagram:
+  DefinitionFiles:
+    - Type: URL
+      Url: "https://raw.githubusercontent.com/awslabs/diagram-as-code/main/definitions/definition-for-aws-icons-light.yaml"
+
+  Resources:
+    Canvas:
+      Type: AWS::Diagram::Canvas
+      Direction: vertical
+      Children:
+        - Users
+        - AWSCloud
+        - GitHub
+    Users:
+      Type: AWS::Diagram::Resource
+      Preset: Client
+      Title: "Researchers (browser)"
+    GitHub:
+      Type: AWS::Diagram::Resource
+      Preset: AWS CodePipeline
+      Title: "GitHub Actions: build, push, deploy"
+
+    AWSCloud:
+      Type: AWS::Diagram::Cloud
+      Direction: vertical
+      Preset: AWSCloudNoLogo
+      Align: center
+      Children:
+        - Edge
+        - VPC
+        - Services
+
+    Edge:
+      Type: AWS::Diagram::HorizontalStack
+      Children:
+        - Route53
+        - WAF
+        - CloudFront
+        - FrontendBucket
+        - Cognito
+    Route53:
+      Type: AWS::Diagram::Resource
+      Preset: Amazon Route 53
+      Title: "Route 53"
+    WAF:
+      Type: AWS::Diagram::Resource
+      Preset: AWS WAF
+      Title: "WAF"
+    CloudFront:
+      Type: AWS::Diagram::Resource
+      Preset: Amazon CloudFront
+      Title: "CloudFront"
+    FrontendBucket:
+      Type: AWS::S3::Bucket
+      Title: "S3: React app"
+    Cognito:
+      Type: AWS::Diagram::Resource
+      Preset: Amazon Cognito
+      Title: "Cognito: sign-in"
+
+    VPC:
+      Type: AWS::EC2::VPC
+      Direction: vertical
+      Children:
+        - PublicSubnet
+        - PrivateStack
+    PublicSubnet:
+      Type: AWS::EC2::Subnet
+      Preset: PublicSubnet
+      Children:
+        - ALB
+    ALB:
+      Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+      Preset: Application Load Balancer
+      Title: "Load balancer"
+    PrivateStack:
+      Type: AWS::Diagram::HorizontalStack
+      Children:
+        - AppSubnet
+        - DataSubnet
+    AppSubnet:
+      Type: AWS::EC2::Subnet
+      Preset: PrivateSubnet
+      Children:
+        - Fargate
+    Fargate:
+      Type: AWS::Diagram::Resource
+      Preset: AWS Fargate
+      Title: "ECS Fargate: FastAPI + BLAST+"
+    DataSubnet:
+      Type: AWS::EC2::Subnet
+      Preset: PrivateSubnet
+      Children:
+        - Aurora
+    Aurora:
+      Type: AWS::Diagram::Resource
+      Preset: Amazon Aurora
+      Title: "Aurora PostgreSQL + pgvector"
+
+    Services:
+      Type: AWS::Diagram::HorizontalStack
+      Children:
+        - GenomeBucket
+        - Bedrock
+        - ECR
+        - Secrets
+        - CloudWatch
+    GenomeBucket:
+      Type: AWS::S3::Bucket
+      Title: "S3: genomes (private)"
+    Bedrock:
+      Type: AWS::Diagram::Resource
+      Preset: Amazon Bedrock
+      Title: "Bedrock: embeddings + LLM"
+    ECR:
+      Type: AWS::Diagram::Resource
+      Preset: Amazon Elastic Container Registry (Amazon ECR)
+      Title: "ECR: images"
+    Secrets:
+      Type: AWS::Diagram::Resource
+      Preset: AWS Secrets Manager
+      Title: "Secrets Manager"
+    CloudWatch:
+      Type: AWS::Diagram::Resource
+      Preset: Amazon CloudWatch
+      Title: "CloudWatch: logs"
+
+  Links:
+    - Source: Users
+      SourcePosition: S
+      Target: CloudFront
+      TargetPosition: N
+      TargetArrowHead:
+        Type: Open
+    - Source: CloudFront
+      SourcePosition: E
+      Target: FrontendBucket
+      TargetPosition: W
+      TargetArrowHead:
+        Type: Open
+    - Source: CloudFront
+      SourcePosition: S
+      Target: PublicSubnet
+      TargetPosition: N
+      TargetArrowHead:
+        Type: Open
+    - Source: PublicSubnet
+      SourcePosition: S
+      Target: AppSubnet
+      TargetPosition: N
+      TargetArrowHead:
+        Type: Open
+    - Source: Fargate
+      SourcePosition: E
+      Target: Aurora
+      TargetPosition: W
+      TargetArrowHead:
+        Type: Open
+    - Source: AppSubnet
+      SourcePosition: S
+      Target: GenomeBucket
+      TargetPosition: N
+      TargetArrowHead:
+        Type: Open
+    - Source: AppSubnet
+      SourcePosition: S
+      Target: Bedrock
+      TargetPosition: N
+      TargetArrowHead:
+        Type: Open
+    - Source: GitHub
+      SourcePosition: N
+      Target: ECR
+      TargetPosition: S
+      TargetArrowHead:
+        Type: Open

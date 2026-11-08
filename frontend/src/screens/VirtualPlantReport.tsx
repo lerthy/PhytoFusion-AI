@@ -3,6 +3,7 @@ import { getScenario, listScenarios } from "../api";
 import { ErrorNote } from "../components/ErrorNote";
 import { EvidenceBadge } from "../components/EvidenceBadge";
 import { Icon } from "../components/Icon";
+import { ExplainButton } from "../components/ExplainButton";
 import { ScenarioVisual } from "../components/ScenarioVisual";
 import { Button, EmptyState, More, PageHead } from "../components/ui";
 import { useAsync } from "../hooks";
@@ -64,6 +65,18 @@ export function VirtualPlantReport({ result, onOpen, goToScenario }: Props) {
             </div>
           </section>
           <ScenarioVisual result={result} />
+          <ExplainButton
+            key={result.scenario}
+            kind="report"
+            facts={{
+              type: result.type, host_species: result.host_species, donor_species: result.donor_species,
+              target_gene_id: result.target_gene_id, chromosome: result.chromosome,
+              documented_function: result.documented_function, pathway: result.pathway, scenario: result.scenario,
+              predicted_consequences: result.predicted_consequences, compatibility_issues: result.compatibility_issues,
+              missing_information: result.missing_information, limitations: result.limitations,
+              evidence_level: result.evidence_level, references: result.references,
+            }}
+          />
           <Section title="What this could mean" icon="check" items={result.predicted_consequences} empty="Nothing can be said from the information given." />
           <Section title="What we don’t know" icon="info" items={[...result.compatibility_issues, ...result.missing_information]} empty="No gaps were identified from the information given." />
           <Section title="Limits of this scenario" icon="alert" items={result.limitations} empty="" tone="limits" />

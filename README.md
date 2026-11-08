@@ -23,6 +23,7 @@ Full scientific and technical plan: [Context.md](Context.md).
 | [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | UI style, palette, accessibility checks |
 | [docs/TESTING.md](docs/TESTING.md) | Test strategy and how to run tests |
 | [docs/CICD.md](docs/CICD.md) | CI/CD pipelines and required secrets |
+| [docs/DEVPOST.md](docs/DEVPOST.md) | Devpost submission text, field by field, plus a checklist against the challenge requirements |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Hosting: Netlify (frontend) and Render (backend), step by step |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | What is built, what is next |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | Biology and project terms |
