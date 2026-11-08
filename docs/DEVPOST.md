@@ -97,6 +97,24 @@ What the working prototype shows:
 
 ---
 
+## Slide deck (maximum 10 slides)
+
+Submit **`PhytoFusion-AI-submission-10-slides.pptx`**. The longer `PhytoFusion-AI-pitch.pptx` (22 slides) stays as a
+backup for questions: it adds the tech stack, delivery pipeline, AWS plan, team and documentation slides.
+
+| # | Slide | Covers |
+|---|---|---|
+| 1 | Title | |
+| 2 | The problem | Problem |
+| 3 | Two skullcaps, two chemistries | Problem, relevance (traditional use, sourced) |
+| 4 | Our question: the KPS gene family | Problem |
+| 5 | Five connected engines | Methodology |
+| 6 | GeneBridge AI explains why, with evidence | Methodology |
+| 7 | From genomes to a report you can trace | Demonstration |
+| 8 | What the prototype found | Results |
+| 9 | How we checked it | Results and validation |
+| 10 | Why it matters, and what comes next | Impact, credits, demo link |
+
 ## Checklist against the challenge requirements
 
 | Requirement | Where it is covered |
