@@ -89,6 +89,7 @@ export function About({ onStart }: Props) {
                 <ChromRow bars={HOST_BARS} label="Nine chromosomes" />
                 <p className="blurb">Known for flavonoids such as</p>
                 <ul className="chips" aria-label="Compounds it is known for"><li>baicalein</li><li>baicalin</li><li>wogonin</li></ul>
+                <p className="trad">A traditional Chinese medicine: the root is used to clear heat and dampness.<span className="src">Zhao et al. 2019 · PMID 31236960</span></p>
               </article>
               <article className="sp donor">
                 <p className="role">Donor · where the gene comes from</p>
@@ -98,11 +99,12 @@ export function About({ onStart }: Props) {
                 <ChromRow bars={DONOR_BARS} label="Thirteen chromosomes" />
                 <p className="blurb">Known for</p>
                 <ul className="chips" aria-label="Compounds it is known for"><li>clerodane diterpenoids</li></ul>
+                <p className="trad">Used in traditional Chinese and Korean medicine, mainly to clear heat and detoxify.<span className="src">Wang et al. 2020 · PMID 31577937</span></p>
               </article>
             </div>
             <div className="question">
               <h3>Could a gene linked to diterpenoid production in <em>S. barbata</em> be added, in theory, to <em>S. baicalensis</em> without losing what the host already makes?</h3>
-              <p>The two plants organise their genes on different numbers of chromosomes, which is why compatibility has to be checked gene by gene.</p>
+              <p>The two plants organise their genes on different numbers of chromosomes, which is why compatibility has to be checked gene by gene. Traditional use is a reason to study a plant, not proof that it works.</p>
             </div>
           </div>
         </section>

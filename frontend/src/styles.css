@@ -294,6 +294,10 @@ dl.kv { margin: 0; font-size: 0.85rem; } dl.kv dt { color: var(--text-muted); } 
 .sp.host .chrom-row rect { fill: var(--hero-mint); opacity: 0.85; }
 .sp.donor .chrom-row rect { fill: var(--accent); }
 .sp .blurb { font-size: 1.05rem; }
+.sp .trad { margin-top: var(--s4); padding-top: var(--s3); border-top: 1px solid var(--border); font-size: 0.95rem; }
+.sp.host .trad { border-top-color: color-mix(in srgb, var(--hero-fg) 22%, transparent); }
+.sp .trad .src { display: block; margin-top: var(--s1); font: 0.8rem var(--font-mono); color: var(--text-muted); }
+.sp.host .trad .src { color: var(--hero-muted); }
 .chips { list-style: none; margin: var(--s3) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s2); }
 .chips li { padding: 4px 14px; border-radius: 999px; font-size: 0.9rem; border: 1px solid var(--border-strong); }
 .sp.host .chips li { border-color: color-mix(in srgb, var(--hero-fg) 38%, transparent); }
