@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.15-slim
 
 # BLAST+ is used by the comparative genomics engine
 RUN apt-get update \
